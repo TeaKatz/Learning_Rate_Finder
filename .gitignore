@@ -1,0 +1,4 @@
+*.iml
+*.pyc
+/.ipynb_checkpoints/
+/.idea/
