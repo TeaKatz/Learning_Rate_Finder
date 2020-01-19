@@ -1,5 +1,6 @@
 import tempfile
 import numpy as np
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
 
@@ -87,6 +88,9 @@ class LearningRateFinder:
 		self.model.save_weights(weightsFile)
 		orig_lr = self.model.optimizer.lr.numpy()
 
+		# Set learning rate to start_lr
+		self.model.optimizer.lr = start_lr
+
 		# Run training
 		for epoch in range(epochs):
 			for batch, (x, y) in enumerate(train_data):
@@ -101,7 +105,11 @@ class LearningRateFinder:
 				self.model.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
 
 				# Update Learning rate
-				self.on_batch_end(batch + 1, loss)
+				self.on_batch_end(int(epoch * updateTimePerEpoch + batch + 1), loss)
+
+				if (batch + 1) % 100 == 0:
+					# Report
+					print('Epoch {} Batch {} Loss {:.4f} LearningRate {:.4f}'.format(epoch + 1, batch + 1, loss, self.model.optimizer.lr.numpy()))
 
 				# Stop training
 				if self.stop_training:
